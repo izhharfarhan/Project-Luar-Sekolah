@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'HomeScreen.dart';
 import '../profile/ProfileScreen.dart';
-import '../about/AboutScreen.dart';
+import '../notes_api/NotesApiScreen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,11 +15,11 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(key: ValueKey('home')),
+    const NotesApiScreen(key: ValueKey('api')),
     const ProfileScreen(key: ValueKey('profile')),
-    const AboutScreen(key: ValueKey('about')),
   ];
 
-  final List<String> _titles = ['Note Keeper', 'Profil', 'Tentang'];
+  final List<String> _titles = ['Note Keeper', 'Catatan API', 'Profil'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -45,8 +45,8 @@ class _MainScreenState extends State<MainScreen> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.public), label: 'Note API'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'About'),
         ],
       ),
     );

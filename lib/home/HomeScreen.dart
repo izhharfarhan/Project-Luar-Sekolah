@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'NoteFormScreen.dart'; // Pastikan import ini sesuai path kamu
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,10 +41,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _updateNote(int index, Map<String, String> updatedNote) {
+    setState(() {
+      _notes[index] = updatedNote;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Tidak perlu AppBar di sini, karena sudah ada di MainScreen
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -99,6 +105,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: ListTile(
                             title: Text(note['title']!, style: const TextStyle(fontWeight: FontWeight.bold)),
                             subtitle: Text(note['content']!),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => NoteFormScreen(
+                                      note: note,
+                                      index: index,
+                                      onUpdate: _updateNote,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         );
                       },
