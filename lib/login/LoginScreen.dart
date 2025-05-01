@@ -14,22 +14,28 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isButtonEnabled = false;
 
-  // Data dummy pengguna
+  // Data dummy pengguna lengkap
   final List<Map<String, String>> _dummyUsers = [
     {
       'email': 'izhharfarhan@gmail.com',
       'password': '123456',
       'name': 'zar',
+      'job': 'Mobile Developer',
+      'phone': '081234567890',
     },
     {
       'email': 'ahmad@gmail.com',
       'password': 'qwerty123',
       'name': 'ahmad',
+      'job': 'UI/UX Designer',
+      'phone': '082345678901',
     },
     {
       'email': 'oliver@gmail.com',
       'password': 'asdasd123',
       'name': 'oliver',
+      'job': 'Data Scientist',
+      'phone': '083456789012',
     },
   ];
 
@@ -39,12 +45,16 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  Future<void> _saveLoginData(String email, String name) async {
+  // Simpan semua data user ke SharedPreferences
+  Future<void> _saveLoginData(Map<String, String> user) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', email);
-    await prefs.setString('name', name);
+    await prefs.setString('email', user['email']!);
+    await prefs.setString('name', user['name']!);
+    await prefs.setString('job', user['job']!);
+    await prefs.setString('phone', user['phone']!);
   }
 
+  // Cek kecocokan login dengan data dummy
   Future<void> _attemptLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -55,8 +65,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (user.isNotEmpty) {
-      await _saveLoginData(user['email']!, user['name']!);
-      Navigator.pushReplacementNamed(context, '/home');
+      await _saveLoginData(user);
+      Navigator.pushReplacementNamed(context, '/main');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email atau Password salah')),

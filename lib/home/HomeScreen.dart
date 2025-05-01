@@ -27,13 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('email');
-    await prefs.remove('name');
-    Navigator.pushReplacementNamed(context, '/');
-  }
-
   void _addNote() {
     if (_titleController.text.isNotEmpty && _contentController.text.isNotEmpty) {
       setState(() {
@@ -50,15 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Note Keeper'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => _logout(context),
-          ),
-        ],
-      ),
+      // Tidak perlu AppBar di sini, karena sudah ada di MainScreen
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -67,9 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
             if (_name.isNotEmpty) ...[
               Text(
                 'Hallo, $_name!',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               const Text(
                 'Hari ini kamu mau mencatat apa?',
                 style: TextStyle(fontSize: 16),
@@ -83,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             TextField(
               controller: _contentController,
               decoration: const InputDecoration(
@@ -95,15 +80,24 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: _notes.isEmpty
-                  ? const Center(child: Text('Belum ada catatan'))
+                  ? const Center(
+                      child: Text(
+                        'Belum ada catatan',
+                        style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                      ),
+                    )
                   : ListView.builder(
                       itemCount: _notes.length,
                       itemBuilder: (context, index) {
                         final note = _notes[index];
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 8),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           child: ListTile(
-                            title: Text(note['title']!),
+                            title: Text(note['title']!, style: const TextStyle(fontWeight: FontWeight.bold)),
                             subtitle: Text(note['content']!),
                           ),
                         );
@@ -115,6 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNote,
+        tooltip: 'Tambah Catatan',
         child: const Icon(Icons.add),
       ),
     );
