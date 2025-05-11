@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'NoteFormScreen.dart'; // Pastikan import ini sesuai path kamu
+import '../bloc/notes_bloc.dart';
+import '../bloc/notes_event.dart';
+import '../bloc/notes_state.dart';
+import '../models/note.dart';
+import 'NoteFormScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  final List<Map<String, String>> _notes = [];
   String _name = '';
 
   @override
@@ -28,23 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _addNote() {
+  void _addNote(BuildContext context) {
     if (_titleController.text.isNotEmpty && _contentController.text.isNotEmpty) {
-      setState(() {
-        _notes.add({
-          'title': _titleController.text,
-          'content': _contentController.text,
-        });
-        _titleController.clear();
-        _contentController.clear();
-      });
+      final note = Note(
+        id: DateTime.now().millisecondsSinceEpoch,
+        title: _titleController.text,
+        content: _contentController.text,
+      );
+      context.read<NotesBloc>().add(AddNoteEvent(note));
+      _titleController.clear();
+      _contentController.clear();
     }
-  }
-
-  void _updateNote(int index, Map<String, String> updatedNote) {
-    setState(() {
-      _notes[index] = updatedNote;
-    });
   }
 
   @override
@@ -61,10 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Hari ini kamu mau mencatat apa?',
-                style: TextStyle(fontSize: 16),
-              ),
+              const Text('Hari ini kamu mau mencatat apa?', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 20),
             ],
             TextField(
@@ -85,51 +80,67 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: _notes.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Belum ada catatan',
-                        style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _notes.length,
+              child: BlocBuilder<NotesBloc, NotesState>(
+                builder: (context, state) {
+                  if (state is NotesLoaded) {
+                    if (state.notes.isEmpty) {
+                      return const Center(child: Text("Belum ada catatan"));
+                    }
+
+                    return ListView.builder(
+                      itemCount: state.notes.length,
                       itemBuilder: (context, index) {
-                        final note = _notes[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                        final note = state.notes[index];
+                        return Dismissible(
+                          key: ValueKey(note.id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (_) {
+                            context.read<NotesBloc>().add(DeleteNoteEvent(note.id));
+                          },
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: const Icon(Icons.delete, color: Colors.white),
                           ),
-                          child: ListTile(
-                            title: Text(note['title']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(note['content']!),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => NoteFormScreen(
-                                      note: note,
-                                      index: index,
-                                      onUpdate: _updateNote,
+                          child: Card(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(note.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Text(note.content),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => BlocProvider.value(
+                                        value: context.read<NotesBloc>(),
+                                        child: NoteFormScreen(
+                                          note: note,
+                                          index: index,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           ),
+
                         );
                       },
-                    ),
+                    );
+                  }
+                  return const Center(child: Text("Belum ada data"));
+                },
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addNote,
+        onPressed: () => _addNote(context),
         tooltip: 'Tambah Catatan',
         child: const Icon(Icons.add),
       ),

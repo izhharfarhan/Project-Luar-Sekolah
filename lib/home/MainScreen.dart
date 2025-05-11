@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'HomeScreen.dart';
 import '../profile/ProfileScreen.dart';
 import '../notes_api/NotesApiScreen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/notes_bloc.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,8 +15,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomeScreen(key: ValueKey('home')),
+  List<Widget> get _pages => [
+    BlocProvider(
+      create: (_) => NotesBloc(),
+      child: const HomeScreen(key: ValueKey('home')),
+    ),
     const NotesApiScreen(key: ValueKey('api')),
     const ProfileScreen(key: ValueKey('profile')),
   ];
