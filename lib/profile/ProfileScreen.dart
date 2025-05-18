@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,18 +23,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _email = prefs.getString('email') ?? '';
-      _name = prefs.getString('name') ?? '';
-      _job = prefs.getString('job') ?? '';
-      _phone = prefs.getString('phone') ?? '';
-    });
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final uid = user.uid;
+    final dbRef = FirebaseDatabase.instance.ref().child('users/$uid');
+
+    final snapshot = await dbRef.get();
+
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      setState(() {
+        _email = data['email'] ?? '';
+        _name = data['name'] ?? '';
+        _job = data['job'] ?? '';
+        _phone = data['phone'] ?? '';
+      });
+    }
   }
 
   Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await FirebaseAuth.instance.signOut();
     Navigator.pushReplacementNamed(context, '/');
   }
 
