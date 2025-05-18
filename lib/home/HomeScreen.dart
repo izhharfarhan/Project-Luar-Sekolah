@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../bloc/notes_bloc.dart';
-import '../bloc/notes_event.dart';
-import '../bloc/notes_state.dart';
-import '../models/note.dart';
+import '../bloc/mynote/mynote_bloc.dart';
+import '../bloc/mynote/mynote_event.dart';
+import '../bloc/mynote/mynote_state.dart';
+import '../models/mynote.dart';
 import 'NoteFormScreen.dart';
+import 'MyNoteDetailScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,11 +20,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   String _name = '';
+  late final String _uid;
 
   @override
   void initState() {
     super.initState();
     _loadName();
+    _uid = FirebaseAuth.instance.currentUser!.uid;
+    context.read<MyNoteBloc>().add(LoadMyNotes(_uid));
   }
 
   Future<void> _loadName() async {
@@ -32,14 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _addNote(BuildContext context) {
+  void _addNote() {
     if (_titleController.text.isNotEmpty && _contentController.text.isNotEmpty) {
-      final note = Note(
-        id: DateTime.now().millisecondsSinceEpoch,
+      context.read<MyNoteBloc>().add(AddMyNote(
+        uid: _uid,
         title: _titleController.text,
         content: _contentController.text,
-      );
-      context.read<NotesBloc>().add(AddNoteEvent(note));
+      ));
       _titleController.clear();
       _contentController.clear();
     }
@@ -54,10 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_name.isNotEmpty) ...[
-              Text(
-                'Hallo, $_name!',
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
+              Text('Hallo, $_name!', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               const Text('Hari ini kamu mau mencatat apa?', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 20),
@@ -80,9 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: BlocBuilder<NotesBloc, NotesState>(
+              child: BlocBuilder<MyNoteBloc, MyNoteState>(
                 builder: (context, state) {
-                  if (state is NotesLoaded) {
+                  if (state is MyNoteLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is MyNoteLoaded) {
                     if (state.notes.isEmpty) {
                       return const Center(child: Text("Belum ada catatan"));
                     }
@@ -95,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           key: ValueKey(note.id),
                           direction: DismissDirection.endToStart,
                           onDismissed: (_) {
-                            context.read<NotesBloc>().add(DeleteNoteEvent(note.id));
+                            context.read<MyNoteBloc>().add(DeleteMyNote(uid: _uid, noteId: note.id));
                           },
                           background: Container(
                             color: Colors.red,
@@ -104,10 +107,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: const Icon(Icons.delete, color: Colors.white),
                           ),
                           child: Card(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
                             child: ListTile(
                               title: Text(note.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                               subtitle: Text(note.content),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MyNoteDetailScreen(note: note),
+                                ),
+                              ),
                               trailing: IconButton(
                                 icon: const Icon(Icons.edit),
                                 onPressed: () {
@@ -115,11 +123,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => BlocProvider.value(
-                                        value: context.read<NotesBloc>(),
-                                        child: NoteFormScreen(
-                                          note: note,
-                                          index: index,
-                                        ),
+                                        value: context.read<MyNoteBloc>(),
+                                        child: NoteFormScreen(note: note),
                                       ),
                                     ),
                                   );
@@ -127,12 +132,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-
                         );
                       },
                     );
                   }
-                  return const Center(child: Text("Belum ada data"));
+                  return const Center(child: Text("Gagal memuat catatan"));
                 },
               ),
             ),
@@ -140,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addNote(context),
+        onPressed: _addNote,
         tooltip: 'Tambah Catatan',
         child: const Icon(Icons.add),
       ),

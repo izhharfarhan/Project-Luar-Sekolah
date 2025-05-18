@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'login/LoginScreen.dart';
 import 'home/MainScreen.dart';
 import 'di/locator.dart';
 import 'bloc/auth/auth_bloc.dart';
+import 'bloc/mynote/mynote_bloc.dart';
+import 'services/notes_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,15 +16,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 🟢 Baru daftar locator setelah Firebase siap
   setupLocator();
 
-  final prefs = await SharedPreferences.getInstance();
-  final savedEmail = prefs.getString('email');
-
-  runApp(MyApp(initialRoute: savedEmail == null ? '/' : '/main'));
+  final user = FirebaseAuth.instance.currentUser;
+  runApp(MyApp(initialRoute: user == null ? '/' : '/main'));
 }
-
 
 class MyApp extends StatelessWidget {
   final String initialRoute;
@@ -36,7 +34,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (_) => locator<AuthBloc>(),
         ),
-        // Nanti tambahkan NotesBloc di sini
+        BlocProvider<MyNoteBloc>(
+          create: (_) => MyNoteBloc(NotesService()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
