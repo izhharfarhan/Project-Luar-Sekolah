@@ -6,7 +6,9 @@ import '../bloc/auth/auth_event.dart';
 import '../bloc/auth/auth_state.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final FirebaseDatabase? firebaseDatabase;
+
+  const RegisterScreen({super.key, this.firebaseDatabase});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -29,7 +31,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _saveToRealtimeDatabase(String uid) async {
-    final dbRef = FirebaseDatabase.instance.ref().child('users/$uid');
+    final db = widget.firebaseDatabase ?? FirebaseDatabase.instance;
+    final dbRef = db.ref().child('users/$uid');
     await dbRef.set({
       'name': _nameController.text.trim(),
       'job': _jobController.text.trim(),

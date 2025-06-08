@@ -4,9 +4,11 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth;
 
-  AuthBloc() : super(AuthInitial()) {
+  AuthBloc({FirebaseAuth? auth})
+      : _auth = auth ?? FirebaseAuth.instance,
+        super(AuthInitial()) {
     on<LoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
@@ -14,9 +16,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: event.email,
           password: event.password,
         );
-        emit(AuthAuthenticated(userCred.user!.uid));
+        if (userCred.user != null) {
+          emit(AuthAuthenticated(userCred.user!.uid));
+        } else {
+          emit(AuthError('Login gagal: Pengguna tidak ditemukan'));
+        }
       } catch (e) {
-        emit(AuthError(e.toString()));
+        emit(AuthError('Login gagal: $e'));
       }
     });
 
@@ -27,9 +33,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: event.email,
           password: event.password,
         );
-        emit(AuthAuthenticated(userCred.user!.uid));
+        if (userCred.user != null) {
+          emit(AuthAuthenticated(userCred.user!.uid));
+        } else {
+          emit(AuthError('Registrasi gagal: Pengguna tidak dibuat'));
+        }
       } catch (e) {
-        emit(AuthError(e.toString()));
+        emit(AuthError('Registrasi gagal: $e'));
       }
     });
 

@@ -7,7 +7,9 @@ import '../bloc/auth/auth_state.dart';
 import 'RegisterScreen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final SharedPreferences? sharedPreferences;
+
+  const LoginScreen({super.key, this.sharedPreferences});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -19,6 +21,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isButtonEnabled = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _validateForm() {
     setState(() {
       _isButtonEnabled = _formKey.currentState?.validate() ?? false;
@@ -26,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _saveLoginData(String uid, String email) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = widget.sharedPreferences ?? await SharedPreferences.getInstance();
     await prefs.setString('uid', uid);
     await prefs.setString('email', email);
   }
