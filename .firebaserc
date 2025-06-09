@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "aplikasi-pencatatan-b01e0"
-  }
+    "default": "aplikasi-pencatatan-b01e0",
+    "noteapp": "note-app-af47b"
+  },
+  "targets": {},
+  "etags": {}
 }

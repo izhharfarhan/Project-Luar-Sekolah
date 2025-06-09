@@ -47,31 +47,32 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAOQmlmIfse2K7JRXKYKL7dBuLc_khgwt0',
-    appId: '1:884108167778:web:21f682b66fb970dfde5f3b',
-    messagingSenderId: '884108167778',
-    projectId: 'aplikasi-pencatatan-b01e0',
-    authDomain: 'aplikasi-pencatatan-b01e0.firebaseapp.com',
-    databaseURL: 'https://aplikasi-pencatatan-b01e0-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'aplikasi-pencatatan-b01e0.firebasestorage.app',
+    apiKey: 'AIzaSyC5VCaBuSj1FVkrPv9nVVwdFiZ787kLg7Y',
+    appId: '1:178075470863:web:a8a8eefbb77df78246677a',
+    messagingSenderId: '178075470863',
+    projectId: 'note-app-af47b',
+    authDomain: 'note-app-af47b.firebaseapp.com',
+    databaseURL: 'https://note-app-af47b-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'note-app-af47b.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAsDWYnNT5Lp1oKNXiLOiEKlUZuC07QEC4',
-    appId: '1:884108167778:android:ccb45485831b2d54de5f3b',
-    messagingSenderId: '884108167778',
-    projectId: 'aplikasi-pencatatan-b01e0',
-    databaseURL: 'https://aplikasi-pencatatan-b01e0-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'aplikasi-pencatatan-b01e0.firebasestorage.app',
+    apiKey: 'AIzaSyCECOdQaLEodil4oHpNwJGotjfsngz2y-k',
+    appId: '1:178075470863:android:6c854a36ec9aa9d246677a',
+    messagingSenderId: '178075470863',
+    projectId: 'note-app-af47b',
+    databaseURL: 'https://note-app-af47b-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'note-app-af47b.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDO1TEh4GfiAl_m-tHUEEcksxlEWJzkPBA',
-    appId: '1:884108167778:ios:3ab4aa05ea8e8b3ede5f3b',
-    messagingSenderId: '884108167778',
-    projectId: 'aplikasi-pencatatan-b01e0',
-    databaseURL: 'https://aplikasi-pencatatan-b01e0-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'aplikasi-pencatatan-b01e0.firebasestorage.app',
+    apiKey: 'AIzaSyDEIK31P5q9Wg41A-t0kDm0cSHHRHwyICI',
+    appId: '1:178075470863:ios:01bd5039702d60a046677a',
+    messagingSenderId: '178075470863',
+    projectId: 'note-app-af47b',
+    databaseURL: 'https://note-app-af47b-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'note-app-af47b.firebasestorage.app',
     iosBundleId: 'com.example.projectPbiLuarsekolah',
   );
+
 }
